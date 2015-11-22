@@ -1,0 +1,21 @@
+<VirtualHost *:{{ item.1.port | default(80) }}>
+    DocumentRoot {{ item.1.path }}
+    ServerName {{ item.1.host | default(ansible_hostname) }}
+
+   {% if item.1.alias|default(False) %}
+    ServerAlias {{ item.1.alias | join(' ') }}
+    {% endif %}
+
+    <Directory {{ item.1.path }}>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+    </Directory>
+
+</VirtualHost>

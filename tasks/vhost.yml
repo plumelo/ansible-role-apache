@@ -1,0 +1,21 @@
+---
+
+- name: Toggle default virtual host
+  command: "{{ (apache_vhost_default) | ternary('a2ensite','a2dissite') }} 000-default.conf"
+  when: apache_vhost_default is defined
+  register: tresult
+  changed_when:  tresult.stdout.find('apache2 reload') != -1
+  notify: restart apache
+
+- name: Add Apache virtual hosts
+  template: src=vhost.conf.j2 dest=/etc/apache2/sites-available/{{ item.1.name | default("%02d-site"|format(item.0+1)) }}.conf force=yes
+  register: vhosts_add
+  with_indexed_items: "{{ apache_vhosts }}"
+
+- name: Toggle Apache virtual hosts
+  command: "{{ (item.1.item.1.disable|default(False)) | ternary('a2dissite','a2ensite') }} {{ item.1.item.1.name | default('%02d-site'|format(item.0+1)) }}.conf"
+  when: item.1.changed == true
+  register: vhosts_toggle
+  changed_when:  vhosts_toggle.stdout.find('apache2 reload') != -1
+  notify: restart apache
+  with_indexed_items: "{{ vhosts_add.results }}"

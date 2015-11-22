@@ -2,9 +2,9 @@
 
 - name: Toggle default virtual host
   command: "{{ (apache_vhost_default) | ternary('a2ensite','a2dissite') }} 000-default.conf"
-  when: apache_vhost_default is defined
-  register: tresult
-  changed_when:  tresult.stdout.find('apache2 reload') != -1
+  when: apache_vhost_default != true or (apache_vhosts is defined and (apache_vhosts|length)>0 )
+  register: vdef
+  changed_when:  vdef.stdout.find('apache2 reload') != -1
   notify: restart apache
 
 - name: Add Apache virtual hosts

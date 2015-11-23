@@ -11,6 +11,7 @@
   template: src=vhost.conf.j2 dest=/etc/apache2/sites-available/{{ item.1.name | default("%02d-site"|format(item.0+1)) }}.conf force=yes
   register: vhosts_add
   with_indexed_items: "{{ apache_vhosts }}"
+  notify: restart apache
 
 - name: Toggle Apache virtual hosts
   command: "{{ (item.1.item.1.disable|default(False)) | ternary('a2dissite','a2ensite') }} {{ item.1.item.1.name | default('%02d-site'|format(item.0+1)) }}.conf"

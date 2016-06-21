@@ -17,6 +17,9 @@
             Require all granted
         </IfVersion>
     </Directory>
+    {% if item.1.proxy is defined and item.1.proxy == true  %}
+      SSLProxyEngine on
+    {% endif %}
 </VirtualHost>
 
 {% if item.1.https is defined and item.1.https == true  %}
@@ -42,5 +45,9 @@
     SSLEngine on
     SSLCertificateFile /etc/apache2/ssl/{{item.1.name}}.crt
     SSLCertificateKeyFile /etc/apache2/ssl/{{item.1.name}}.key
+
+    {% if item.1.proxy is defined and item.1.proxy == true  %}
+       SSLProxyEngine on
+    {% endif %}
 </VirtualHost>
 {% endif %}
